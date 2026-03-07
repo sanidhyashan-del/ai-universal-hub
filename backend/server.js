@@ -1,31 +1,57 @@
-import express from "express";
-import fetch from "node-fetch";
-import cors from "cors";
+// server.js
+const express = require("express");
+const cors = require("cors");
+const dotenv = require("dotenv");
+const axios = require("axios");
 
+dotenv.config();
 const app = express();
-app.use(cors());
+app.use(cors({ origin: "*" }));
 app.use(express.json());
 
-app.post("/api/chatgpt", async (req,res)=>{
-const prompt=req.body.prompt;
-
-const response=await fetch("https://api.openai.com/v1/chat/completions",{
-method:"POST",
-headers:{
-"Content-Type":"application/json",
-"Authorization":"Bearer YOUR_OPENAI_KEY"
-},
-body:JSON.stringify({
-model:"gpt-4o-mini",
-messages:[{role:"user",content:prompt}]
-})
+// Example route for ChatGPT
+app.post("/api/chatgpt", async (req, res) => {
+  try {
+    const { prompt } = req.body;
+    const response = await axios.post(
+      "https://api.openai.com/v1/chat/completions",
+      {
+        model: "gpt-4",
+        messages: [{ role: "user", content: prompt }],
+      },
+      {
+        headers: { Authorization: `Bearer ${process.env.OPENAI_API_KEY}` },
+      }
+    );
+    res.json({ output: response.data.choices[0].message.content });
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).json({ error: "ChatGPT service unavailable" });
+  }
 });
 
-const data=await response.json();
-
-res.json({reply:data.choices[0].message.content});
+// Example route for Claude
+app.post("/api/claude", async (req, res) => {
+  try {
+    const { prompt } = req.body;
+    const response = await axios.post(
+      "https://api.anthropic.com/v1/messages",
+      {
+        model: "claude-3-opus-20240229",
+        messages: [{ role: "user", content: prompt }],
+      },
+      {
+        headers: { Authorization: `Bearer ${process.env.CLAUDE_API_KEY}` },
+      }
+    );
+    res.json({ output: response.data.output });
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).json({ error: "Claude service unavailable" });
+  }
 });
 
-app.listen(3000,()=>{
-console.log("AI router running");
-});
+// Add similar routes for Gemini and Perplexity...
+
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
