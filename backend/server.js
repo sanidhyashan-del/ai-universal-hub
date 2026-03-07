@@ -1,4 +1,3 @@
-// server.js
 const express = require("express");
 const cors = require("cors");
 const dotenv = require("dotenv");
@@ -9,7 +8,7 @@ const app = express();
 app.use(cors({ origin: "*" }));
 app.use(express.json());
 
-// Example route for ChatGPT
+// ChatGPT route
 app.post("/api/chatgpt", async (req, res) => {
   try {
     const { prompt } = req.body;
@@ -19,9 +18,7 @@ app.post("/api/chatgpt", async (req, res) => {
         model: "gpt-4",
         messages: [{ role: "user", content: prompt }],
       },
-      {
-        headers: { Authorization: `Bearer ${process.env.OPENAI_API_KEY}` },
-      }
+      { headers: { Authorization: `Bearer ${process.env.OPENAI_API_KEY}` } }
     );
     res.json({ output: response.data.choices[0].message.content });
   } catch (err) {
@@ -30,7 +27,7 @@ app.post("/api/chatgpt", async (req, res) => {
   }
 });
 
-// Example route for Claude
+// Claude route
 app.post("/api/claude", async (req, res) => {
   try {
     const { prompt } = req.body;
@@ -40,9 +37,7 @@ app.post("/api/claude", async (req, res) => {
         model: "claude-3-opus-20240229",
         messages: [{ role: "user", content: prompt }],
       },
-      {
-        headers: { Authorization: `Bearer ${process.env.CLAUDE_API_KEY}` },
-      }
+      { headers: { Authorization: `Bearer ${process.env.CLAUDE_API_KEY}` } }
     );
     res.json({ output: response.data.output });
   } catch (err) {
@@ -51,7 +46,15 @@ app.post("/api/claude", async (req, res) => {
   }
 });
 
-// Add similar routes for Gemini and Perplexity...
+// Gemini route (example placeholder)
+app.post("/api/gemini", async (req, res) => {
+  res.json({ output: "Gemini integration coming soon." });
+});
+
+// Perplexity route (example placeholder)
+app.post("/api/perplexity", async (req, res) => {
+  res.json({ output: "Perplexity integration coming soon." });
+});
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
